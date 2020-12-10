@@ -44,7 +44,7 @@
                         :rname="item.rname"
                         :description="item.description"
                    
-                        @refresh="getAllRequirement()"
+                        @refresh="getAllRequirementByPid()"
                     ></RequirementInfo>
                 </transition-group>
             </div>
@@ -91,30 +91,30 @@
             width="30%"
         >
             <el-form
-                ref="requirementform"
-                :model="requirementform"
+                ref="requirementForm"
+                :model="requirementForm"
                 label-width="80px"
                 style="width: 300px;"
             >
                 <el-form-item label="需求名称">
-                    <el-input v-model="requirementform.name"></el-input>
+                    <el-input v-model="requirementForm.rname"></el-input>
                 </el-form-item>
                 <el-form-item label="需求类型">
-                    <el-input v-model="requirementform.name"></el-input>
+                    <el-input v-model="requirementForm.rtype"></el-input>
                 </el-form-item>
                 <el-form-item label="需求优先级">
-                    <el-input v-model="requirementform.name"></el-input>
+                    <el-input v-model="requirementForm.priority"></el-input>
                 </el-form-item>
                 <el-form-item label="详细描述">
-                    <el-input v-model="requirementform.name"></el-input>
+                    <el-input v-model="requirementForm.description"></el-input>
                 </el-form-item>
                 <el-form-item label="图片说明Todo">
-                    <!-- <el-input v-model="requirementform.name"></el-input> -->
+                    <!-- <el-input v-model="requirementForm.name"></el-input> -->
                 </el-form-item>
             </el-form>
             <span slot="footer" class="dialog-footer">
                 <el-button @click="dialogVisible = false">取 消</el-button>
-                <el-button type="primary" @click="createGroup">确 定</el-button>
+                <el-button type="primary" @click="createRequirement">确 定</el-button>
             </span>
         </el-dialog>
     </div>
@@ -132,15 +132,17 @@ export default {
         return {
             dialogVisible: false,
             activeIndex: "1",
-            requirementform: {
+            requirementForm: {
                 rname: "",
                 descrrption: "",
                 priority: "",
                 rtype: "",
             },
             form: {
-                UMLName: "",
-                UMLType: ""
+                rname: "",
+                descrrption: "",
+                rtype: "",
+                priority: "",
             },
             fileList: [],
             requirementList : [],
@@ -152,8 +154,65 @@ export default {
         this.getFileList();
         this.getAllGroup();
         this.getAllRequirement();
+        this.getAllRequirementByPid();
+        this.createRequirement();
     },
     methods: {
+        createRequirement() {
+            var self = this;
+            //console.log("personal:"+self.$store.state.UML.userId);
+            self.$axios
+                .get("/createRequirement", {
+                    params: {
+                        uid: self.$store.state.UML.userId,
+                        pid: self.$store.state.UML.pid,
+                        rname: self.requirementForm.rname,
+                        description: self.requirementForm.description,
+                        rtype: self.requirementForm.rtype,
+                        // pdescription
+                        priority: self.requirementForm.priority,
+                    }
+                })
+                .then(function(response) {
+                    console.log("success:" + response);
+                    self.$message({
+                        message: "创建成功",
+                        type: "success"
+                    });
+                    self.resetForm();
+                    self.getAllRequirementByPid();
+                })
+                .catch(function(error) {
+                    console.log("error:" + error);
+                });
+            this.dialogVisible = false;
+        },
+        resetForm() {
+            this.form.rname = "";
+            this.form.description = "";
+            this.form.rtype = "";
+            this.form.priority = "";
+        },
+        getAllRequirementByPid() {
+            var self = this;
+            this.$axios
+                .get("/getAllRequirementByPid", {
+                    params: {
+                        uid: self.$store.state.UML.pid,
+                    },
+                })
+                .then(function(response) {
+                    console.log(
+                        "getAllRequirementBypid:",
+                        self.$store.state.UML.pid,
+                        response.data
+                    );
+                    self.requirementList = response.data;
+                })
+                .catch(function(error) {
+                    console.log("error:" + error);
+                });
+        },
         getAllRequirement() {
             var self = this;
             this.$axios

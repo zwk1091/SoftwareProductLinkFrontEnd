@@ -45,6 +45,10 @@ export default {
     components: {ProjectDetailPanel, },
 
     props: {
+        pid: {
+            type: Number,
+            default: -1,
+        },
         rname: {
             type: String,
             default: "undefine",
@@ -78,7 +82,9 @@ export default {
         handleProjectInfoClick() {
             var self = this;
             console.log("hhhh");
-
+            self.$store.commit("setProjectId", {
+                                pid: this.pid
+                            });
             // self.projectDetail = true;
             self.$router.push({ name: "ProjectDetailPanel" });
         },

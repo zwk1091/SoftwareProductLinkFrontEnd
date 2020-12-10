@@ -47,6 +47,9 @@ export default new Vuex.Store({
         histories: [], //循环队列实现
     },
     mutations: {
+        setProjectId(state,  params) {
+            state.UML.pid = params.pid;
+        },
         setuserId(state, params) {
             state.UML.userId = params.id;
             console.log("store:" + state.UML.userId);

@@ -76,6 +76,38 @@ export default {
         this.getAllRequirement();
     },
     methods: {
+        createRequirement() {
+             var self = this;
+            //console.log("personal:"+self.$store.state.UML.userId);
+            self.$axios
+                .get("/createRequirement", {
+                    params: {
+                        rname: self.form.rname,
+                        description: self.form.description,
+                        rtype: self.form.rtype,
+                        // pdescription
+                        priority: self.form.priority,
+                    }
+                })
+                .then(function(response) {
+                    console.log("success:" + response);
+                    self.$message({
+                        message: "创建成功",
+                        type: "success"
+                    });
+                    self.resetForm();
+                    self.getAllRequirement();
+                })
+                .catch(function(error) {
+                    console.log("error:" + error);
+                });
+        },
+        resetForm() {
+            this.form.rname = "";
+            this.form.description = "";
+            this.form.rtype = "";
+            this.form.priority = "";
+        },
         getAllRequirement() {
             var self = this;
             this.$axios
