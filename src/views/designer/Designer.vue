@@ -115,7 +115,7 @@ export default {
                 a.style.display = "none";
                 document.body.removeChild(dom);
                 let blob = this.dataURLToBlob(dom.toDataURL("image/png"));
-                var url = "http://q76chphm1.bkt.clouddn.com/" + key + "?v=" + this.$store.state.refreshTime;
+                var url = "http://qldvty1zf.hn-bkt.clouddn.com/" + key + "?v=" + this.$store.state.refreshTime;
                 //alert(url);
                 var Token = this.$store.state.Token;
                 let config = {
@@ -144,7 +144,7 @@ export default {
                     complete: (res) => {
                         // 接收成功后返回的信息
                         //alert("上传成功");
-                        console.log(res)
+                        console.log(res,"上传成功")
                         /*
                         this.$message({
                             message: "修改保存成功",

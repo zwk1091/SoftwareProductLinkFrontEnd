@@ -213,7 +213,7 @@ export default {
             invitationList: [],
             fileList: [],
             selectGid: -1,
-            imgsrc: "http://q92yn5po6.bkt.clouddn.com/"
+            imgsrc: "http://qldvty1zf.hn-bkt.clouddn.com/"
             /*
                 gid: 2
                 groupId: null
@@ -341,7 +341,7 @@ export default {
                     console.log("fileList:", self.fileList);
                     for (var i = 0; i < self.fileList.length; i++) {
                         var imgsrc =
-                            "http://q92yn5po6.bkt.clouddn.com/" +
+                            "http://qldvty1zf.hn-bkt.clouddn.com/" +
                             self.fileList[i].fileType +
                             "_" +
                             self.fileList[i].fid +

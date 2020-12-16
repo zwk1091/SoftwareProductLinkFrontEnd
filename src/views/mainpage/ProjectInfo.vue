@@ -14,7 +14,7 @@
                     icon="el-icon-close"
                     @click="deleteGroup"
                 ></el-button>
-                <span>项目名称：{{ rname }}</span>
+                <span>项目名称：{{ pname }}</span>
                 <!-- <el-button
                     v-if="$store.state.UML.userId == leaderId"
                     size="mini"
@@ -49,7 +49,7 @@ export default {
             type: Number,
             default: -1,
         },
-        rname: {
+        pname: {
             type: String,
             default: "undefine",
         },
@@ -81,7 +81,8 @@ export default {
         },
         handleProjectInfoClick() {
             var self = this;
-            console.log("hhhh");
+            console.log("handleProjectInfoClick", this.pid, this.pname);
+
             self.$store.commit("setProjectId", {
                                 pid: this.pid
                             });

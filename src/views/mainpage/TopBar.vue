@@ -245,9 +245,9 @@
                 imageUrl: '',
                 token: {},
                 // 七牛云的上传地址,华东区
-                domain: 'upload.qiniup.com',
+                domain: 'upload-z2.qiniup.com',
                 // 这是七牛云空间的外链默认域名
-                qiniuaddr: 'q92yn5po6.bkt.clouddn.com',
+                qiniuaddr: 'qldvty1zf.hn-bkt.clouddn.com',
                 modifyFN:false
             };
         },

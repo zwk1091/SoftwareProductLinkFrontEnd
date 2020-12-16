@@ -8,26 +8,49 @@
             </el-header>
             <el-container class="mainBody">
             <el-menu :default-active="activeIndex" class="personmenu" @select="handleSelect">
-                <!-- <el-menu-item index="1">
-                    <i class="el-icon-document"></i>
-                    <span slot="title">发布需求</span>
-                </el-menu-item> -->
                 <el-menu-item index="1">
-                    <i class="el-icon-menu"></i>
-                    <span slot="title">需求管理</span>
+                    <i class="el-icon-document"></i>
+                    <span slot="title">项目详情</span>
                 </el-menu-item>
                 <el-menu-item index="2">
                     <i class="el-icon-menu"></i>
-                    <span slot="title">UML图管理</span>
+                    <span slot="title">需求管理</span>
                 </el-menu-item>
                 <el-menu-item index="3">
                     <i class="el-icon-menu"></i>
+                    <span slot="title">UML图管理</span>
+                </el-menu-item>
+                <el-menu-item index="4">
+                    <i class="el-icon-menu"></i>
                     <span slot="title">代码管理</span>
+                </el-menu-item>
+                <el-menu-item index="5">
+                    <i class="el-icon-menu"></i>
+                    <span slot="title">新建UML</span>
                 </el-menu-item>
             </el-menu>
             <div
                 class="centerDiv"
                 v-show="activeIndex == '1'"
+            >
+                <div class="text">项目名称：{{ thisProject.pname }}</div>
+                <div class="text">项目描述：{{ thisProject.pdescription }}</div>
+                <div class="text">项目领域：{{ thisProject.pfield }}</div>
+                <div class="text">项目语言：{{ thisProject.planguage }}</div>
+                    <!-- <ProjectInfo  
+                        v-for="item in thisProject"
+                        :key="'pid:' + item.pid"
+                        :pid="item.pid"
+                        :pname="item.pname"
+                        :description="item.pdescription"
+                        :planguage="item.planguage"
+                        :pfield="item.pfield"
+                        @refresh="updateProjectInfoByPid()"
+                    ></ProjectInfo> -->
+            </div>
+            <div
+                class="centerDiv"
+                v-show="activeIndex == '2'"
             >
                 <el-card class="box-card">
                     <el-button
@@ -41,16 +64,18 @@
                     <RequirementInfo  
                         v-for="item in requirementList"
                         :key="'rid:' + item.rid"
+                        :rid="item.rid"
                         :rname="item.rname"
                         :description="item.description"
-                   
+                        :rtype="item.rtype"
+                        :priority="item.priority"
                         @refresh="getAllRequirementByPid()"
                     ></RequirementInfo>
                 </transition-group>
             </div>
             <div
                 class="centerDiv"
-                v-show="activeIndex == '2'"
+                v-show="activeIndex == '3'"
             >
                  <transition-group name="list-complete">
                         <SingleFile
@@ -66,21 +91,39 @@
                 </transition-group>
             </div>
             <div class="centerDiv" 
-            v-show="activeIndex == '3'">
+            v-show="activeIndex == '4'">
                 <transition-group name="list-complete">
-                    <RequirementInfo  
-                        v-for="item in groupList"
-                        :key="'gid:' + item.gid"
-                        :name="item.groupName"
-                        :invitedMember="item.invitedUserList"
-                        :invitingMember="item.invitingUserList"
                    
-                        :leaderId="item.captainId"
-                        :gid="item.gid"
-                        @refresh="getAllGroup()"
-                    ></RequirementInfo>
                 </transition-group>
             </div>
+
+            <div
+                class="detailContent"
+                v-show="activeIndex == '5'"
+                style="width: 300px; margin: 10px auto"
+            >
+                 <el-form ref="form" :model="form" label-width="80px" style="width: 300px;">
+                    <el-form-item label="文件名称">
+                        <el-input v-model="form.UMLName"></el-input>
+                    </el-form-item>
+                    <el-form-item label="UML类型">
+                        <el-select v-model="form.UMLType" placeholder="请选择UML类型">
+                            <el-option label="类图" value="CLASS_DIAGRAM"></el-option>
+                            <el-option label="顺序图" value="SEQUENCE_DIAGRAM"></el-option>
+                            <el-option label="组件图" value="COMPONENT_DIAGRAM"></el-option>
+                            <el-option label="状态图" value="STATE_DIAGRAM"></el-option>
+                            <el-option label="用例图" value="USECASE_DIAGRAM"></el-option>
+                            <el-option label="部署图" value="DEPLOYMENT_DIAGRAM"></el-option>
+                            <el-option label="实体关系图" value="ER_DIAGRAM"></el-option>
+                        </el-select>
+                    </el-form-item>
+                    <el-form-item>
+                        <el-button style="float: right; margin-left: 5px" @click="resetUMLForm()">清空</el-button>
+                        <el-button style="float: right" type="primary" @click="newfile">创建</el-button>
+                    </el-form-item>
+                </el-form>
+            </div>
+
             </el-container>
             </el-container>
         </div>
@@ -144,20 +187,91 @@ export default {
                 rtype: "",
                 priority: "",
             },
+            thisProject: [],
+            pid: -1,
+            description: "",
+            planguage: "",
+            pfield: "",
+            pname: "",
             fileList: [],
             requirementList : [],
-            imgsrc: "http://q92yn5po6.bkt.clouddn.com/"
+            imgsrc: "http://qldvty1zf.hn-bkt.clouddn.com/"
         };
     },
 
     mounted() {
         this.getFileList();
         this.getAllGroup();
-        this.getAllRequirement();
+        // this.getAllRequirementByUid();
         this.getAllRequirementByPid();
-        this.createRequirement();
+        this.updateProjectInfoByPid();
+        // this.createRequirement();
     },
     methods: {
+        updateProjectInfoByPid() {
+            console.log("update project by pid");
+            var self = this;
+            self.$axios
+                .get("/getProjectByPid", {
+                    params: {
+                        pid: self.$store.state.UML.pid,
+                    }
+                })
+                .then(function(response) {
+                    console.log("success:");
+                    console.log(response);
+                    self.thisProject = response.data;
+                    console.log(self.thisProject.pdescription);
+
+                })
+                .catch(function(error) {
+                    console.log("error:" + error);
+                });
+        },
+        newfile() {
+            var self = this;
+            //console.log("personal:"+self.$store.state.UML.userId);
+            self.$axios
+                .get("/createFile", {
+                    params: {
+                        uid: self.$store.state.UML.userId,
+                        fileName: self.form.UMLName,
+                        fileType: self.form.UMLType
+                    }
+                })
+                .then(function(response) {
+                    console.log("success:" + response);
+                    self.$message({
+                        message: "创建成功",
+                        type: "success"
+                    });
+                    self.$store.commit("setUMLId", { id: response.data });
+                    self.$store.commit("setGroupId", { groupId: -1 });
+                    self.$store.commit("setUMLName", {
+                        name: self.form.UMLName
+                    });
+                    self.$store.commit("setUMLType", {
+                        type: self.form.UMLType
+                    });
+                    //清空Nodes
+                    self.$store.commit("setUMLNodes", {
+                        nodeList: []
+                    });
+                    //清空lines
+                    self.$store.commit("setUMLLines", {
+                        lineList: []
+                    });
+                    //console.log(self.$store.state.UML.UMLId);
+                    //console.log(self.$store.state.UML.UMLName);
+                    //console.log(self.$store.state.UML.UMLType);
+                    self.$router.push({ name: "Designer" });
+                })
+                .catch(function(error) {
+                    console.log("error:" + error);
+                });
+        },
+        
+
         createRequirement() {
             var self = this;
             //console.log("personal:"+self.$store.state.UML.userId);
@@ -187,6 +301,10 @@ export default {
                 });
             this.dialogVisible = false;
         },
+        resetUMLForm() {
+            this.form.UMLName = "";
+            this.form.UMLType = "";
+        },
         resetForm() {
             this.form.rname = "";
             this.form.description = "";
@@ -198,12 +316,12 @@ export default {
             this.$axios
                 .get("/getAllRequirementByPid", {
                     params: {
-                        uid: self.$store.state.UML.pid,
+                        pid: self.$store.state.UML.pid,
                     },
                 })
                 .then(function(response) {
                     console.log(
-                        "getAllRequirementBypid:",
+                        "getAllRequirementByPid:",
                         self.$store.state.UML.pid,
                         response.data
                     );
@@ -213,7 +331,7 @@ export default {
                     console.log("error:" + error);
                 });
         },
-        getAllRequirement() {
+        getAllRequirementByUid() {
             var self = this;
             this.$axios
                 .get("/getAllRequirementByUid", {
@@ -249,7 +367,7 @@ export default {
                     console.log("fileList:", self.fileList);
                     for (var i = 0; i < self.fileList.length; i++) {
                         var imgsrc =
-                            "http://q92yn5po6.bkt.clouddn.com/" +
+                            "http://qldvty1zf.hn-bkt.clouddn.com" +
                             self.fileList[i].fileType +
                             "_" +
                             self.fileList[i].fid +
@@ -352,7 +470,7 @@ export default {
                     self.fileList = response.data;
                     for (var i = 0; i < self.fileList.length; i++) {
                         var imgsrc =
-                            "http://q92yn5po6.bkt.clouddn.com/" +
+                            "http://qldvty1zf.hn-bkt.clouddn.com/" +
                             self.fileList[i].fileType +
                             "_" +
                             self.fileList[i].fid +

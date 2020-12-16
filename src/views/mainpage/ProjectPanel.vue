@@ -78,7 +78,7 @@ export default {
             fileList: [],
             projectList:[],
             requirementList : [],
-            imgsrc: "http://q92yn5po6.bkt.clouddn.com/"
+            imgsrc: "http://qldvty1zf.hn-bkt.clouddn.com/"
         };
     },
     mounted() {
@@ -245,7 +245,7 @@ export default {
                     self.fileList = response.data;
                     for (var i = 0; i < self.fileList.length; i++) {
                         var imgsrc =
-                            "http://q92yn5po6.bkt.clouddn.com/" +
+                            "http://qldvty1zf.hn-bkt.clouddn.com/" +
                             self.fileList[i].fileType +
                             "_" +
                             self.fileList[i].fid +

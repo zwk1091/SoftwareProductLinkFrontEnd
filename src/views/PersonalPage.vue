@@ -7,7 +7,7 @@
                 mode="horizontal"
                 @select="handleSelect"
             >
-                <el-menu-item index="1">项目列表</el-menu-item>
+                <el-menu-item index="1">所有项目</el-menu-item>
                 <el-menu-item index="2">我的项目</el-menu-item>
                 <el-menu-item index="3">发布项目</el-menu-item>
                 <!-- <el-menu-item index="1">个人UML图</el-menu-item>
@@ -43,7 +43,8 @@
                     <ProjectInfo  
                         v-for="item in projectList"
                         :key="'pid:' + item.pid"
-                        :rname="item.pname"
+                        :pid="item.pid"
+                        :pname="item.pname"
                         :description="item.pdescription"
                         :planguage="item.planguage"
                         :pfield="item.pfield"
@@ -53,7 +54,19 @@
                 
             </div>
             <div class="centerDiv" v-else-if="activeIndex == '2'">
-                
+                <transition-group name="list-complete">
+
+                    <ProjectInfo  
+                        v-for="item in myProjectList"
+                        :key="'pid:' + item.pid"
+                        :pid="item.pid"
+                        :pname="item.pname"
+                        :description="item.pdescription"
+                        :planguage="item.planguage"
+                        :pfield="item.pfield"
+                        @refresh="getAllProjectByUid()"
+                    ></ProjectInfo>
+                </transition-group>
             </div>
             <div 
             class="detailContent"
@@ -117,6 +130,7 @@ export default {
     data() {
         return {
             projectList:[],
+            myProjectList: [],
             form: {
                 pname : "",
                 planguage : "",
@@ -135,6 +149,7 @@ export default {
     },
     mounted() {
         this.getAllProject();
+        this.getAllProjectByUid();
     },
     methods: {
          resetForm() {
@@ -149,6 +164,7 @@ export default {
             self.$axios
                 .get("/createProject", {
                     params: {
+                        uid: self.$store.state.UML.userId,
                         pname: self.form.pname,
                         planguage: self.form.planguage,
                         pfield: self.form.pfield,
@@ -164,6 +180,27 @@ export default {
                     });
                     self.resetForm();
                     self.getAllProject();
+                    self.getAllProjectByUid();
+                })
+                .catch(function(error) {
+                    console.log("error:" + error);
+                });
+        },
+        getAllProjectByUid() {
+            var self = this;
+            this.$axios
+                .get("/getAllProjectByUid", {
+                    params: {
+                        uid: self.$store.state.UML.userId,
+                    },
+                })
+                .then(function(response) {
+                    console.log(
+                        "getAllProjectByUid:",
+                        self.$store.state.UML.userId,
+                        response.data
+                    );
+                    self.myProjectList = response.data;
                 })
                 .catch(function(error) {
                     console.log("error:" + error);

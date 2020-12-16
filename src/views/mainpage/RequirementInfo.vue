@@ -3,12 +3,11 @@
         <el-card class="box-card">
             <div slot="header" class="clearfix">
                 <el-button
-                    v-if="$store.state.UML.userId == leaderId"
                     size="mini"
                     style="float: left; padding: 3px 0; color: red"
                     type="text"
                     icon="el-icon-close"
-                    @click="deleteGroup"
+                    @click="deleteRequirement"
                 ></el-button>
                 <span>需求名称：{{ rname }}</span>
                 <!-- <el-button
@@ -24,7 +23,8 @@
             </div>
             <div class="list">
                 <div class="text item">需求内容：{{ description }}</div>
-               
+                <div class="text item">需求类别：{{ rtype }}</div>
+                <div class="text item">优先级：{{ priority }}</div>
             </div>
         </el-card>
         <el-dialog title="邀请新成员" :visible.sync="dialogVisible" width="30%">
@@ -62,7 +62,19 @@ export default {
         description: {
             type: String,
             default: "undefine",
-        }
+        },
+        rtype: {
+            type: String,
+            default: "undefine",
+        },
+        priority: {
+            type: Number,
+            default: "undefine",
+        },
+        rid: {
+            type: Number,
+            default: -1,
+        },
     },
     data() {
         return {
@@ -115,15 +127,16 @@ export default {
 
             this.dialogVisible = false;
         },
-        deleteGroup() {
-            if (this.gid <= 0) {
+        deleteRequirement() {
+            console.log("delete requirement", this.rid);
+            if (this.rid <= 0) {
                 return;
             }
             var self = this;
             this.$axios
-                .get("/deleteGroup", { params: { gid: self.gid } })
+                .get("/deleteRequirement", { params: { rid: self.rid } })
                 .then(function(response) {
-                    console.log("delete group res:", response.data);
+                    console.log("delete requirement res:", response.data);
                     if (response.data) {
                         self.$message({
                             message: "删除成功",
