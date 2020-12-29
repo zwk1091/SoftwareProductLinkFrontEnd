@@ -24,10 +24,10 @@
                     <i class="el-icon-menu"></i>
                     <span slot="title">代码管理</span>
                 </el-menu-item>
-                <el-menu-item index="5">
+                <!-- <el-menu-item index="5">
                     <i class="el-icon-menu"></i>
                     <span slot="title">新建UML</span>
-                </el-menu-item>
+                </el-menu-item> -->
             </el-menu>
             <div
                 class="centerDiv"
@@ -37,16 +37,6 @@
                 <div class="text">项目描述：{{ thisProject.pdescription }}</div>
                 <div class="text">项目领域：{{ thisProject.pfield }}</div>
                 <div class="text">项目语言：{{ thisProject.planguage }}</div>
-                    <!-- <ProjectInfo  
-                        v-for="item in thisProject"
-                        :key="'pid:' + item.pid"
-                        :pid="item.pid"
-                        :pname="item.pname"
-                        :description="item.pdescription"
-                        :planguage="item.planguage"
-                        :pfield="item.pfield"
-                        @refresh="updateProjectInfoByPid()"
-                    ></ProjectInfo> -->
             </div>
             <div
                 class="centerDiv"
@@ -77,6 +67,14 @@
                 class="centerDiv"
                 v-show="activeIndex == '3'"
             >
+                <el-card class="box-card">
+                    <el-button
+                        class="createBtn"
+                        icon="el-icon-circle-plus-outline"
+                        @click="dialogVisibleUML = true"
+                        >新建UML图</el-button
+                    >
+                </el-card>
                  <transition-group name="list-complete">
                         <SingleFile
                             v-for="item in fileList"
@@ -86,23 +84,79 @@
                             :fileType="item.fileType"
                             :gid="selectGid"
                             :src="item.refreshTime"
-                            @refreshFileList="selectGroupFile(selectGid)"
+                            @refreshFileList="getFileList"
                         ></SingleFile>
                 </transition-group>
             </div>
             <div class="centerDiv" 
             v-show="activeIndex == '4'">
-                <transition-group name="list-complete">
-                   
-                </transition-group>
+                <el-menu :default-active="fileActiveIndex" class="personmenu" @select="fileHandleSelect">
+                <el-menu-item index="1">
+                    <i class="el-icon-document"></i>
+                    <span slot="title">上传文件</span>
+                </el-menu-item>
+                <el-menu-item index="2">
+                    <i class="el-icon-menu"></i>
+                    <span slot="title">上传zip文件</span>
+                </el-menu-item>
+                <el-menu-item index="3">
+                    <i class="el-icon-menu"></i>
+                    <span slot="title">新建文件夹</span>
+                </el-menu-item>
+                <el-menu-item index="4">
+                    <i class="el-icon-menu"></i>
+                    <span slot="title">打开文件</span>
+                </el-menu-item>
+                <el-menu-item index="5">
+                    <i class="el-icon-menu"></i>
+                    <span slot="title">重命名</span>
+                </el-menu-item>
+                <el-menu-item index="6">
+                    <i class="el-icon-menu"></i>
+                    <span slot="title">删除</span>
+                </el-menu-item>
+                <el-menu-item index="7">
+                    <i class="el-icon-menu"></i>
+                    <span slot="title">查看项目包图</span>
+                </el-menu-item>
+                <el-menu-item index="7">
+                    <i class="el-icon-menu"></i>
+                    <span slot="title">查看类图</span>
+                </el-menu-item>
+                <!-- <el-menu-item index="5">
+                    <i class="el-icon-menu"></i>
+                    <span slot="title">新建UML</span>
+                </el-menu-item> -->
+            </el-menu>
+            
             </div>
-
             <div
-                class="detailContent"
-                v-show="activeIndex == '5'"
-                style="width: 300px; margin: 10px auto"
+                class="centerDiv"
+                v-show="fileActiveIndex == '1'"
             >
-                 <el-form ref="form" :model="form" label-width="80px" style="width: 300px;">
+                <el-upload
+                class="upload-demo"
+                ref="upload"
+                action="doUpload"
+                :limit="1"
+                :file-list="fileList"
+                :before-upload="beforeUpload">
+                <el-button slot="trigger" size="small" type="primary">选取文件</el-button>
+                <!-- <el-button style="margin-left: 10px;" size="small" type="success" @click="submitUpload">上传到服务器</el-button> -->
+                <div slot="tip" class="el-upload__tip">只能上传excel文件，且不超过5MB</div>
+                <div slot="tip" class="el-upload-list__item-name">{{fileName}}</div>
+                </el-upload> 
+            </div>
+            </el-container>
+            </el-container>
+        </div>
+        <PageFooter></PageFooter>
+        <el-dialog
+            title="新增UML图"
+            :visible.sync="dialogVisibleUML"
+            width="30%"
+        >
+            <el-form ref="form" :model="form" label-width="80px" style="width: 300px;">
                     <el-form-item label="文件名称">
                         <el-input v-model="form.UMLName"></el-input>
                     </el-form-item>
@@ -118,16 +172,12 @@
                         </el-select>
                     </el-form-item>
                     <el-form-item>
+                        <el-button @click="dialogVisibleUML = false">取 消</el-button>
                         <el-button style="float: right; margin-left: 5px" @click="resetUMLForm()">清空</el-button>
                         <el-button style="float: right" type="primary" @click="newfile">创建</el-button>
                     </el-form-item>
                 </el-form>
-            </div>
-
-            </el-container>
-            </el-container>
-        </div>
-        <PageFooter></PageFooter>
+        </el-dialog>
         <el-dialog
             title="新增一条需求"
             :visible.sync="dialogVisible"
@@ -174,7 +224,9 @@ export default {
     data() {
         return {
             dialogVisible: false,
+            dialogVisibleUML: false,
             activeIndex: "1",
+            fileActiveIndex: "0",
             requirementForm: {
                 rname: "",
                 descrrption: "",
@@ -404,6 +456,9 @@ export default {
         handleSelect(key, keyPath) {
             this.activeIndex = key;
         },
+        fileHandleSelect(key, keyPath) {
+            this.fileActiveIndex = key;
+        },
         handleOpen(key, keyPath) {
             console.log(key, keyPath);
         },
@@ -421,6 +476,7 @@ export default {
                 .get("/createFile", {
                     params: {
                         uid: self.$store.state.UML.userId,
+                        pid: self.$store.state.UML.pid,
                         fileName: self.form.UMLName,
                         fileType: self.form.UMLType
                     }
@@ -457,12 +513,12 @@ export default {
                 });
         },
         getFileList() {
-            console.log("getfile");
+            console.log("getfile by pid");
             var self = this;
             this.$axios
-                .get("/getAllFilePicByUid", {
+                .get("/getAllFilePicByPid", {
                     params: {
-                        uid: self.$store.state.UML.userId
+                        pid: self.$store.state.UML.pid
                     }
                 })
                 .then(function(response) {

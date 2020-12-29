@@ -2,12 +2,12 @@
     <div id="background">
         <div id="main">
             <div id="login">
-                <p id="title">UML</p>
+                <p id="title">SoftwareLink</p>
                 <!--只可以邮箱号登录-->
                 <!--v-model="username"-->
                 <div id="input">
                     <input id="mailbox" v-model="Mailbox" type="text" placeholder="请输入邮箱账号" />
-                    <input id="password" v-model="Password" type="password" placeholder="请输入密码ggg" />
+                    <input id="password" v-model="Password" type="password" placeholder="请输入密码" />
                 </div>
                 <el-button
                     style="width:400px; margin: 10px 0px"
