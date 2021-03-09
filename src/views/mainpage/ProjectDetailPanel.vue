@@ -1,13 +1,14 @@
 <template>
     <div>
-        
-        <div style="display: flex">
+
+        <!-- <div style="display: flex"> --> 
             <el-container>
             <el-header id="tool">
                 <top-bar></top-bar>
             </el-header>
-            <el-container class="mainBody">
-            <el-menu :default-active="activeIndex" class="personmenu" @select="handleSelect">
+            <el-container>
+            <el-aside>
+                <el-menu :default-active="activeIndex" class="personmenu" @select="handleSelect">
                 <el-menu-item index="1">
                     <i class="el-icon-document"></i>
                     <span slot="title">项目详情</span>
@@ -29,6 +30,8 @@
                     <span slot="title">新建UML</span>
                 </el-menu-item> -->
             </el-menu>
+            </el-aside>
+            <el-main>
             <div
                 class="centerDiv"
                 v-show="activeIndex == '1'"
@@ -90,45 +93,7 @@
             </div>
             <div class="centerDiv" 
             v-show="activeIndex == '4'">
-                <el-menu :default-active="fileActiveIndex" class="personmenu" @select="fileHandleSelect">
-                <el-menu-item index="1">
-                    <i class="el-icon-document"></i>
-                    <span slot="title">上传文件</span>
-                </el-menu-item>
-                <el-menu-item index="2">
-                    <i class="el-icon-menu"></i>
-                    <span slot="title">上传zip文件</span>
-                </el-menu-item>
-                <el-menu-item index="3">
-                    <i class="el-icon-menu"></i>
-                    <span slot="title">新建文件夹</span>
-                </el-menu-item>
-                <el-menu-item index="4">
-                    <i class="el-icon-menu"></i>
-                    <span slot="title">打开文件</span>
-                </el-menu-item>
-                <el-menu-item index="5">
-                    <i class="el-icon-menu"></i>
-                    <span slot="title">重命名</span>
-                </el-menu-item>
-                <el-menu-item index="6">
-                    <i class="el-icon-menu"></i>
-                    <span slot="title">删除</span>
-                </el-menu-item>
-                <el-menu-item index="7">
-                    <i class="el-icon-menu"></i>
-                    <span slot="title">查看项目包图</span>
-                </el-menu-item>
-                <el-menu-item index="7">
-                    <i class="el-icon-menu"></i>
-                    <span slot="title">查看类图</span>
-                </el-menu-item>
-                <!-- <el-menu-item index="5">
-                    <i class="el-icon-menu"></i>
-                    <span slot="title">新建UML</span>
-                </el-menu-item> -->
-            </el-menu>
-            
+                <FileTree v-bind:pid="pid"></FileTree>            
             </div>
             <div
                 class="centerDiv"
@@ -139,17 +104,38 @@
                 ref="upload"
                 action="doUpload"
                 :limit="1"
-                :file-list="fileList"
+                :file-list="codeFileList"
                 :before-upload="beforeUpload">
                 <el-button slot="trigger" size="small" type="primary">选取文件</el-button>
                 <!-- <el-button style="margin-left: 10px;" size="small" type="success" @click="submitUpload">上传到服务器</el-button> -->
-                <div slot="tip" class="el-upload__tip">只能上传excel文件，且不超过5MB</div>
+                <div slot="tip" class="el-upload__tip">只能上传单个文件，且不超过5MB</div>
                 <div slot="tip" class="el-upload-list__item-name">{{fileName}}</div>
+                <el-button type="primary" @click="submitFileUpload()">上传</el-button>
                 </el-upload> 
             </div>
+            <div
+                class="centerDiv"
+                v-show="fileActiveIndex == '2'"
+            >
+                <el-upload
+                class="upload-demo"
+                ref="upload"
+                action="doUpload"
+                accept=".zip"
+                :limit="1"
+                :file-list="codeFileList"
+                :before-upload="beforeUpload">
+                <el-button slot="trigger" size="small" type="primary">选取文件</el-button>
+                <!-- <el-button style="margin-left: 10px;" size="small" type="success" @click="submitUpload">上传到服务器</el-button> -->
+                <div slot="tip" class="el-upload__tip">只能上传单个文件，且不超过5MB</div>
+                <div slot="tip" class="el-upload-list__item-name">{{fileName}}</div>
+                <el-button type="primary" @click="submitZipFileUpload()">上传</el-button>
+                </el-upload> 
+            </div>
+            </el-main>
             </el-container>
             </el-container>
-        </div>
+        <!-- </div> -->
         <PageFooter></PageFooter>
         <el-dialog
             title="新增UML图"
@@ -178,6 +164,27 @@
                     </el-form-item>
                 </el-form>
         </el-dialog>
+        <el-dialog
+            title="新增文件夹"
+            :visible.sync="dialogVisibleDirectory"
+            width="30%"
+        >
+            <el-form
+                ref="newDirectoryForm"
+                :model="newDirectoryForm"
+                label-width="80px"
+                style="width: 300px;"
+            >
+                <el-form-item label="文件夹名称">
+                    <el-input v-model="newDirectoryForm.dname"></el-input>
+                </el-form-item>
+            </el-form>
+            <span slot="footer" class="dialog-footer">
+                <el-button @click="dialogVisibleDirectory = false">取 消</el-button>
+                <el-button type="primary" @click="createDirectory">确 定</el-button>
+            </span>
+        </el-dialog>
+
         <el-dialog
             title="新增一条需求"
             :visible.sync="dialogVisible"
@@ -218,15 +225,22 @@ import RequirementInfo from "./RequirementInfo";
 import GroupInfo from "./GroupInfo.vue";
 import SingleFile from "./SingleFile.vue";
 import PageFooter from "../PageFooter.vue";
+import FileTree from "./FileTree";
+import qs from 'qs';
+import my_axios from 'axios'
 export default {
     name: "ProjectDetailPanel",
-    components: {GroupInfo, SingleFile, PageFooter, RequirementInfo, TopBar},
+    components: {GroupInfo, SingleFile, PageFooter, RequirementInfo, TopBar, FileTree},
     data() {
         return {
             dialogVisible: false,
             dialogVisibleUML: false,
+            dialogVisibleDirectory: false,
             activeIndex: "1",
             fileActiveIndex: "0",
+            newDirectoryForm: {
+                dname: "",
+            },
             requirementForm: {
                 rname: "",
                 descrrption: "",
@@ -240,11 +254,13 @@ export default {
                 priority: "",
             },
             thisProject: [],
-            pid: -1,
+            pid:-2,
             description: "",
             planguage: "",
             pfield: "",
             pname: "",
+            codeFileList: [],
+            fileName: "",
             fileList: [],
             requirementList : [],
             imgsrc: "http://qldvty1zf.hn-bkt.clouddn.com/"
@@ -260,6 +276,13 @@ export default {
         // this.createRequirement();
     },
     methods: {
+        
+        beforeUpload(file) {
+            var self = this;
+            self.codeFileList[0] = file;
+            self.fileName = file.name;
+            return false;
+        },
         updateProjectInfoByPid() {
             console.log("update project by pid");
             var self = this;
@@ -279,6 +302,124 @@ export default {
                 .catch(function(error) {
                     console.log("error:" + error);
                 });
+        },
+        submitZipFileUpload() {
+            var self = this;
+            // let fd = new URLSearcFormDatahParams();
+            let fd = new FormData();
+
+            fd.append('zip', self.codeFileList[0]);
+            fd.append('pid', self.$store.state.UML.pid);
+            var url = "http://localhost:8084/project/uploadZipFile";
+
+            this.$axios({  
+                method:'post',  
+                url:url,  
+                data: fd,
+                // {
+                // pid:self.$store.state.UML.pid,
+                // fileName:"hehehaha",
+                // file : self.codeFileList[0]},
+                // headers:{'Content-Type': 'multipart/form-data'},  
+                // transformRequest: function(obj) {  
+                //     var str = [];  
+                //     for(var p in obj){  
+                //         str.push(encodeURIComponent(p) + "=" + encodeURIComponent(obj[p]));  
+                //     }  
+                //     return str.join("&");  
+                // }  
+            
+            }) .then((res)=>{
+                console.log(res.data);
+            });
+        },
+        submitFileUpload() {
+            var self = this;
+            // let fd = new URLSearcFormDatahParams();
+            let fd = new FormData();
+
+            fd.append('file', self.codeFileList[0]);
+            fd.append('pid', self.$store.state.UML.pid);
+            // fd.append('fileName', "hehehaha");
+            // console.log(self.fileName);
+            // console.log(self.codeFileList[0]);
+            // console.log(self.$store.state.UML.pid);
+            var url = "http://localhost:8084/directory/uploadFile";
+            // self.$axios.post(url, fd, {
+            //     headers: {
+            //     'Content-Type': 'multipart/form-data'
+            //     },
+            // }) .then((res)=>{
+            //     console.log(res.data);
+            // });
+            // console.log(fd.get('pid'));
+            this.$axios({  
+                method:'post',  
+                url:url,  
+                data: fd,
+                // {
+                // pid:self.$store.state.UML.pid,
+                // fileName:"hehehaha",
+                // file : self.codeFileList[0]},
+                // headers:{'Content-Type': 'multipart/form-data'},  
+                // transformRequest: function(obj) {  
+                //     var str = [];  
+                //     for(var p in obj){  
+                //         str.push(encodeURIComponent(p) + "=" + encodeURIComponent(obj[p]));  
+                //     }  
+                //     return str.join("&");  
+                // }  
+            
+            }) .then((res)=>{
+                console.log(res.data);
+            });
+            // self.$axios({
+            //         method : 'post',
+            //         url : "http://localhost:8084/directory/uploadFile", 
+            //         data : fd,
+            //         // transformRequest: [
+            //         // function (data) {
+            //         //     let ret = ''
+            //         //     for (let it in data) {
+            //         //     ret += encodeURIComponent(it) + '=' + encodeURIComponent(data[it]) + '&'
+            //         //     }
+            //         //     ret = ret.substring(0, ret.length - 1)
+            //         //     return ret
+            //         // }
+            //         // ],
+            //         headers: {
+            //             'Content-Type': 'application/x-www-form-urlencoded'
+            //         }
+            // });
+                // .post("/directory/uploadFile",qs.stringify(fd), {
+                //         // headers: {
+                //         // 'Content-Type': 'multipart/form-data'
+                //         // },
+                //         headers : {'Content-Type':'multipart/form-data'},
+                //         // file : self.codeFileList[0],
+                //         // pid : self.$store.state.UML.pid,
+                //     })
+                //     .then(function(response) {
+                //     console.log("success: response.data--", response.data);
+                //     if (response.data != -1) { 
+                        
+                //     } else {
+
+                //     }
+                // })
+                // .catch(function(error) {
+                //     console.log("error:" + error);
+                // });
+                    
+
+                    // file : self.codeFileList[0],
+                    // pid : self.$store.state.UML.pid,
+                    // fileName : self.fileName,
+                    // headers: {
+                    // 'Content-Type': 'multipart/form-data'
+                    // }
+                // })
+                
         },
         newfile() {
             var self = this;
@@ -313,9 +454,6 @@ export default {
                     self.$store.commit("setUMLLines", {
                         lineList: []
                     });
-                    //console.log(self.$store.state.UML.UMLId);
-                    //console.log(self.$store.state.UML.UMLName);
-                    //console.log(self.$store.state.UML.UMLType);
                     self.$router.push({ name: "Designer" });
                 })
                 .catch(function(error) {
@@ -323,6 +461,29 @@ export default {
                 });
         },
         
+        createDirectory() {
+            var self = this;
+            self.$axios
+                .get("/directory/newDirectory", {
+                    params: {
+                        dirName : self.newDirectoryForm.dname,
+                        pid : self.$store.state.UML.pid,
+                    }
+                })
+                .then(function(response) {
+                    console.log("success:" + response);
+                    self.$message({
+                        message: "创建成功",
+                        type: "success"
+                    });
+                    self.resetForm();
+                })
+                .catch(function(error) {
+                    console.log("error:" + error);
+                });
+
+            this.dialogVisibleDirectory = false;
+        },
 
         createRequirement() {
             var self = this;
@@ -515,6 +676,7 @@ export default {
         getFileList() {
             console.log("getfile by pid");
             var self = this;
+            // self.pid = self.$store.state.UML.pid;
             this.$axios
                 .get("/getAllFilePicByPid", {
                     params: {
@@ -553,9 +715,9 @@ export default {
     padding-top: 50px;
 }
 .centerDiv {
-    height: 390px;
+    /* height: 390px;
     overflow-y: auto;
-    padding-top: 10px;
+    padding-top: 10px; */
 }
 .list-complete-item {
     transition: all 1s;

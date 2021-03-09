@@ -22,9 +22,10 @@
     "qiniu-js": "^2.5.5",
     "qs": "^6.6.0",
     "vue": "^2.6.10",
+    "vue-codemirror": "^4.0.6",
     "vuex": "^3.1.2",
-    "xmldom": "^0.1.31",
-    "vuex-persistedstate": "3.0.1"
+    "vuex-persistedstate": "3.0.1",
+    "xmldom": "^0.1.31"
   },
   "devDependencies": {
     "@vue/cli-plugin-babel": "^4.1.0",

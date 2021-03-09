@@ -47,6 +47,12 @@ export default new Vuex.Store({
         histories: [], //循环队列实现
     },
     mutations: {
+        setCodefid(state, params) {
+            state.UML.codefid = params.codefid;
+        },
+        setRequirementId(state, params) {
+            state.UML.rid = params.rid;
+        },
         setProjectId(state,  params) {
             state.UML.pid = params.pid;
         },

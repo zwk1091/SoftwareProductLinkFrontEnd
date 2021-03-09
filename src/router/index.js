@@ -11,6 +11,12 @@ import ComponentsStoreSideBar from "../views/designer/ComponentsStoreSideBar.vue
 import Test from "../views/Test.vue";
 import ToolTopBar from "../views/designer/ToolTopBar.vue";
 import ProjectDetailPanel from "../views/mainpage/ProjectDetailPanel.vue";
+import vueDemo from "../views/mainpage/vueDemo.vue";
+import contentDemo from "../views/mainpage/contentDemo.vue";
+import FileTree from "../views/mainpage/FileTree.vue"
+import RequirementDetailPanel from "../views/mainpage/RequirementDetailPanel.vue"
+import CodeFileDetailPanel from "../views/mainpage/CodeFileDetailPanel.vue"
+
 
 Vue.use(VueRouter);
 
@@ -73,6 +79,31 @@ const routes = [{
     path: "/tooltop",
     name: "ToolTopBar",
     component: ToolTopBar
+  },
+  {
+    path: "/vueDemo",
+    name: "vueDemo",
+    component: vueDemo
+  },
+  {
+    path: "/contentDemo",
+    name: "contentDemo",
+    component: contentDemo
+  },
+  {
+    path:"/FileTree",
+    name:"FileTree",
+    component :FileTree
+  },
+  {
+    path:"/RequirementDetailPanel",
+    name:"RequirementDetailPanel",
+    component : RequirementDetailPanel
+  },
+  {
+    path:"/CodeFileDetailPanel",
+    name:"CodeFileDetailPanel",
+    component : CodeFileDetailPanel
   },
 ];
 

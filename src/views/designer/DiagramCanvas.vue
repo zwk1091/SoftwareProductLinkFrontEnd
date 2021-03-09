@@ -364,31 +364,12 @@
                     this.$store.state.canvasdrage = true;
                     event.dataTransfer.effectAllowed = "copyMove";
                     let resizer = $(event.target);
-                    /*
-                        console.log("resizer.offset().left:"+resizer.offset().left);
-                        console.log("resizer.offset().top:"+resizer.offset().top);
-                        console.log("event.clientX:"+event.clientX);
-                        console.log("event.clientY:"+event.clientY);
-                        */
                     this.cursorToLeft = event.clientX - resizer.offset().left;
                     this.cursorToTop = event.clientY - resizer.offset().top;
                     console.log(this.cursorToLeft, this.cursorToTop);
-                    /* this.ghost = resizer.clone()[0];
-                        this.ghost.style.position = "absolute";
-                        this.ghost.style.left = "-2000px";
-                        this.ghost.style.top = "0px";
-                        document.getElementById("visualEditor").appendChild(this.ghost);
-                        //console.log(this.ghost);
-                        //这个方法和电脑的缩放比例还有点关系，之后最好修改
-                        event.dataTransfer.setDragImage(
-                            this.ghost,
-                            this.cursorToLeft,
-                            this.cursorToTop
-                        ); */
+
                     event.dataTransfer.setDragImage(resizer.clone()[0], 0, 0);
                     for (var i = 0; i < this.$store.state.UML.lines.length; i++) {
-                        //console.log(this.$store.state.UML.lines[i].from)
-                        //console.log(this.$store.state.UML.lines[i].to)
                         if (
                             parseInt(this.$store.state.UML.lines[i].from) ==
                             this.$store.state.editingId
@@ -483,7 +464,6 @@
                 }
             },
             handleDragOver(event) {
-                //console.log("handleDragOver");
                 if (this.$store.state.canvasdrage) {
                     var canv = document.getElementById("canvas");
                     console.log("handleDragOver");
@@ -1975,7 +1955,7 @@
 
     #svg {
         width: 100%;
-        height: 600px;
+        height: 50%;
         z-index: 0;
     }
 </style>

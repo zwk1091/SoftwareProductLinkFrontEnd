@@ -3,18 +3,17 @@
 
             <!-- <ProjectDetailPanel></ProjectDetailPanel> -->
     </div>
-    <div v-else style="display: inline-block;"  @click="handleProjectInfoClick">
+    <div v-else style="display: inline-block;"  >
         <el-card class="box-card">
             <div slot="header" class="clearfix">
                 <el-button
-                    v-if="$store.state.UML.userId == leaderId"
                     size="mini"
                     style="float: left; padding: 3px 0; color: red"
                     type="text"
                     icon="el-icon-close"
-                    @click="deleteGroup"
+                    @click="deleteProject"
                 ></el-button>
-                <span>项目名称：{{ pname }}</span>
+                <span @click="handleProjectInfoClick">项目名称：{{ pname }}</span>
                 <!-- <el-button
                     v-if="$store.state.UML.userId == leaderId"
                     size="mini"
@@ -27,7 +26,7 @@
                 <!--TODO leader == user-->
                 
             </div>
-            <div class="list">
+            <div class="list" @click="handleProjectInfoClick">
                     <div class="text item">项目描述：{{ description }}</div>
                     <div class="text item">项目语言：{{ planguage }}</div>
                     <div class="text item">项目领域：{{ pfield }}</div>
@@ -79,6 +78,33 @@ export default {
             this.dialogVisible = true;
             this.getAllUser();
         },
+        deleteProject() {
+            console.log("delete project", this.pid);
+            if (this.rid <= 0) {
+                return;
+            }
+            var self = this;
+            this.$axios
+                .get("/deleteProject", { params: { pid: self.pid } })
+                .then(function(response) {
+                    console.log("delete requirement res:", response.data);
+                    if (response.data) {
+                        self.$message({
+                            message: "删除成功",
+                            type: "success",
+                        });
+                        self.$emit("refresh");
+                    } else {
+                        self.$message({
+                            message: "出现错误",
+                            type: "error",
+                        });
+                    }
+                })
+                .catch(function(error) {
+                    console.log("error:", error);
+                });
+        },
         handleProjectInfoClick() {
             var self = this;
             console.log("handleProjectInfoClick", this.pid, this.pname);
@@ -88,6 +114,8 @@ export default {
                             });
             // self.projectDetail = true;
             self.$router.push({ name: "ProjectDetailPanel" });
+            // self.$router.push({ name: "contentDemo" });
+            // self.$router.push({ name: "FileTree" });
         },
         getAllUser() {
             var self = this;

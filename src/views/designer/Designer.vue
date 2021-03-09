@@ -15,11 +15,34 @@
                     <ChatPanel v-if="$store.state.UML.groupId > 0" class="chatPanel"></ChatPanel>
                 </el-aside>
                 <el-main id="canvas" style="display: flex">
-                    <DiagramCanvas
-                        :minLeft="320 + ($store.state.UML.groupId > 0) * 100"
-                        id="Diagram"
-                        style="display: inline-block; width: 2000px;"
-                    ></DiagramCanvas>
+                    <div class="Body">
+                        <div class="top">
+                            <DiagramCanvas
+                                :minLeft="320 + ($store.state.UML.groupId > 0) * 100"
+                                id="Diagram"
+                                style="display: inline-block; width: 2000px; height : 300px;"
+                            ></DiagramCanvas>
+                        </div>
+                        <div class="bottom">
+                <el-card class="box-card card-1">
+                  <div slot="header" class="clearfix">
+                    <span>关联的UML图</span>
+                    <el-button style="float: right; padding: 3px 0" type="text"
+                      @click="addUMLLinkDialogVisible = true">添加关联</el-button
+                    >
+                  </div>
+                </el-card>
+                <el-card class="box-card card-2">
+                  <div slot="header" class="clearfix">
+                    <span>关联的代码文件</span>
+                    <el-button style="float: right; padding: 3px 0" type="text"
+                      @click="addCodeFileLinkDialogVisible = true" >添加关联</el-button
+                    >
+                  </div>
+                </el-card>
+                        </div>
+                    </div>
+                    
                 </el-main>
             </el-container>
         </el-container>
@@ -213,5 +236,31 @@ export default {
 }
 .mainBody {
     margin-top: -25px;
+}
+.top {
+ /* height: 300px; */
+}
+
+.bottom {
+  /* margin-top: 200px; */
+  display: flex;
+}
+
+
+
+.card-1{
+  width: 30%;
+  height: 50%;
+  margin-right: 20px;
+}
+
+.card-2{
+  width: 400px;
+  height: 30%;
+}
+
+.top-card {
+ width: 80%;
+ height: 40%;
 }
 </style>

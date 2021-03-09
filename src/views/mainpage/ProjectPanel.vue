@@ -165,14 +165,12 @@ export default {
         },
         newProject() {
             var self = this;
-            //console.log("personal:"+self.$store.state.UML.userId);
             self.$axios
                 .get("/createProject", {
                     params: {
                         pname: self.form.pname,
                         planguage: self.form.planguage,
                         pfield: self.form.pfield,
-                        // pdescription
                         pdescription: self.form.pdescription,
                     }
                 })

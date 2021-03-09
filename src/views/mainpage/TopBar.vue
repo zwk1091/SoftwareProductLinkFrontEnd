@@ -10,7 +10,7 @@
                 <el-breadcrumb-item>
                     <el-tooltip content="返回上一级">
                         <el-button
-                                @click="backToPerson"
+                                @click="backToPrePage"
                                 round
                         >返回上一级
                         </el-button>
@@ -371,9 +371,10 @@
             console.log(this.$store.state)
         },
         methods: {
-            backToPerson() {
+            backToPrePage() {
                 //alert("PersonalPage")
-                this.$router.push({name: "PersonalPage"});
+                // this.$router.push({name: "PersonalPage"});
+                this.$router.go(-1)
             },
             deleteFile() {
                 //alert("删除文件")

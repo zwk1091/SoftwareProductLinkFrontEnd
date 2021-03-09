@@ -9,7 +9,7 @@
                     icon="el-icon-close"
                     @click="deleteRequirement"
                 ></el-button>
-                <span>需求名称：{{ rname }}</span>
+                <span @click="handleRequirementInfoClick">需求名称：{{ rname }}</span>
                 <!-- <el-button
                     v-if="$store.state.UML.userId == leaderId"
                     size="mini"
@@ -21,7 +21,7 @@
                 >
                 <!--TODO leader == user-->
             </div>
-            <div class="list">
+            <div class="list" @click="handleRequirementInfoClick">
                 <div class="text item">需求内容：{{ description }}</div>
                 <div class="text item">需求类别：{{ rtype }}</div>
                 <div class="text item">优先级：{{ priority }}</div>
@@ -52,8 +52,12 @@
     </div>
 </template>
 <script>
+
+import RequirementDetailPanel from "./RequirementDetailPanel";
+
 export default {
     name: "RequirementInfo",
+    components:{RequirementDetailPanel},
     props: {
         rname: {
             type: String,
@@ -84,6 +88,16 @@ export default {
         };
     },
     methods: {
+        handleRequirementInfoClick() {
+            var self = this;
+            console.log("handleProjectInfoClick", this.pid, this.pname);
+
+            self.$store.commit("setRequirementId", {
+                                rid: this.rid
+                            });
+            
+            self.$router.push({ name: "RequirementDetailPanel" });
+        },
         handleClick() {
             this.dialogVisible = true;
             this.getAllUser();
